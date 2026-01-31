@@ -1,11 +1,8 @@
 {
   "mcpServers": {
-    "bocha-mcp": {
-      "url": "https://mcp.bochaai.com/mcp",
-      "transport": "sse",
-      "headers": {
-        "Authorization": "Bearer sk-fe2215fdc69b4976bdabfad1dfd65d40"
-      }
+    "kugou_search_v0.1": {
+      "transport": "streamable_http",
+      "url": "https://mcp.api-inference.modelscope.net/6be94fc52dc748/mcp"
     }
   }
 }

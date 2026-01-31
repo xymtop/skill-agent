@@ -10,6 +10,9 @@ import subprocess
 import asyncio
 from pathlib import Path
 from typing import TypedDict, Annotated, Literal, List, Dict, Any, Optional
+
+import httpx
+from jionlp.gadget import time_parser, parse_time
 from typing_extensions import NotRequired
 
 from langchain_core.tools import tool, BaseTool
@@ -30,7 +33,11 @@ SKILLS_DIR = os.environ.get("SKILLS_DIR", "./skills")
 LLM_MODEL = os.environ.get("LLM_MODEL", "qwen-plus")
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "sk-38122d7a80584690a8c80aeefee4a534")
 LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-
+def create_client(headers,auth,timeout):
+    headers = {
+        "Authorization": "Bearer sk-fe2215fdc69b4976bdabfad1dfd65d40"
+    }
+    return httpx.AsyncClient(verify=False, headers=headers,timeout=120)
 
 # ============================================================================
 # MCP 工具管理器
@@ -61,6 +68,10 @@ class MCPToolManager:
                     return []
 
                 print(f"🔧 Skill {skill_id}: 连接 MCP servers: {list(mcp_servers.keys())}")
+                for name, mcp_settings in mcp_servers.items():
+                    if name == "bocha-mcp":
+                        print(f"🔧 Skill {skill_id}: 配置 MCP 服务器: {mcp_settings}")
+                        mcp_servers['bocha-mcp']['httpx_client_factory'] = create_client
 
                 # langchain-mcp-adapters >= 0.1.0 新 API
                 client = MultiServerMCPClient(mcp_servers)
@@ -169,7 +180,32 @@ def write_file(path: str, content: str) -> str:
         return f"Error: {e}"
 
 
-BASE_TOOLS: List[BaseTool] = [view_file, execute_bash, list_directory, write_file]
+from typing import Union, List
+
+
+@tool
+def parse_times(time_contents: Union[str, List[str]]):
+    """
+    从中文文本中精准抽取并解析时间表达式。
+    支持单个字符串或字符串列表作为输入。
+    """
+    # 统一转换为列表
+    if isinstance(time_contents, str):
+        time_list = [time_contents]
+    else:
+        time_list = time_contents
+
+    data_list = []
+    for time_content in time_list:
+        parsed_result = parse_time(time_content)
+        data_list.append({
+            "time_content": time_content,
+            "time_str": parsed_result.get("time","未知")
+        })
+    return data_list
+
+
+BASE_TOOLS: List[BaseTool] = [view_file, execute_bash, list_directory, write_file,parse_times]
 BASE_TOOL_NAMES = {t.name for t in BASE_TOOLS}
 
 
@@ -338,7 +374,8 @@ async def decision_node(state: AgentState) -> dict:
 
     # 根据是否有已加载的技能调整提示
     if loaded_skills:
-        action_hint = f"""## 已加载的技能
+        action_hint = f"""## 用户当前用的是macos，请将用户体验拉到最好
+        ## 已加载的技能
 {loaded_skills}
 
 ## 当前可用工具
