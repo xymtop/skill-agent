@@ -23,8 +23,8 @@ Skills Agent是一个功能强大的AI助手框架，具有以下特点：
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/yourusername/skills-agent.git
-   cd skills-agent
+   git clone https://github.com/xymtop/skill-agent
+   cd skill-agent
    ```
 
 2. **安装依赖**
@@ -240,11 +240,5 @@ class AgentState(MessagesState):
 
 MIT License
 
-## 📞 联系方式
-
-- GitHub: [https://github.com/yourusername/skills-agent](https://github.com/yourusername/skills-agent)
-- Email: your.email@example.com
-
----
 
 **享受AI助手带来的便利！** 🎉
