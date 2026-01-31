@@ -16,58 +16,6 @@ import uuid
 import time
 
 from dotenv import load_dotenv
-load_dotenv()
-
-
-def getUUID():
-    return "".join(str(uuid.uuid4()).split("-"))
-
-
-def authentication_header(URL, APPID, APPKey):
-    appid = APPID
-    appKey = APPKey
-    uuid = getUUID()
-
-    appName = URL.split('/')[3]
-    for i in range(24 - len(appName)):
-        appName += "0"
-    capabilityname = appName
-    csid = appid + capabilityname + uuid
-    tmp_xServerParam = {
-        "appid": appid,
-        "csid": csid
-    }
-    xCurTime = str(math.floor(time.time()))
-
-    xServerParam = str(base64.b64encode(json.dumps(tmp_xServerParam).encode('utf-8')), encoding="utf8")
-
-    xCheckSum = hashlib.md5(bytes(appKey + xCurTime + xServerParam, encoding="utf8")).hexdigest()
-    header = {
-        "appKey": appKey,
-        "X-Server-Param": xServerParam,
-        "X-CurTime": xCurTime,
-        "X-CheckSum": xCheckSum,
-        'content-type': 'application/json;charset=UTF-8'
-    }
-
-
-    return header
-
-
-QIANWEN_CONFIG = {
-    "api_key": "EMPTY",
-    "base_url": os.getenv("model_url"),
-    "model_name": os.getenv("model_name"),
-    "temperature": 0.3
-}
-
-
-url11 = os.getenv("model_url")
-APP_ID = os.getenv("model_id")
-APP_KEY = os.getenv("model_key")
-
-print("Qianwen LLM init...")
-print(f"{url11}")
 
 
 # def  get_llm():
@@ -94,7 +42,7 @@ print(f"{url11}")
 #
 
 LLM_MODEL = os.environ.get("LLM_MODEL", "qwen-plus")
-LLM_API_KEY = os.environ.get("LLM_API_KEY", "sk-38122d7a80584690a8c80aeefee4a534")
+LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
 LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 
 
